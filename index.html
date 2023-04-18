@@ -35,10 +35,14 @@
 <svg id="mindmap"></svg>
 
 <script type="text/javascript">
+var toolbar = undefined
+
 const createToolbar = () => {
-  const { markmap, mm } = window;
-  const toolbar = new markmap.Toolbar();
-  toolbar.attach(mm);
+  const { markmap } = window;
+
+  if (toolbar === undefined) {
+    toolbar = new markmap.Toolbar();
+  }
 
   const el = toolbar.render();
   el.setAttribute('style', 'position:absolute;bottom:20px;right:20px');
@@ -47,8 +51,12 @@ const createToolbar = () => {
 }
 
 const createMarkmap = (getMarkmap, getOptions, root, jsonOptions) => {
+  document.getElementById('mindmap').innerHTML = ''
+
   const markmap = getMarkmap();
   window.mm = markmap.Markmap.create('svg#mindmap', (getOptions || markmap.deriveOptions)(jsonOptions), root);
+
+  toolbar.attach(window.mm);
 }
 
 const createMarkmapView = (root) => {
@@ -60,6 +68,8 @@ const createMarkmapView = (root) => {
 }
 
 window.onload = async () => {
+  createToolbar()
+
   const nav = document.getElementById('nav');
   
   var res = await axios.get('/markdown');
@@ -77,12 +87,13 @@ window.onload = async () => {
   res = await axios.get('/markdown/' + res.data[0]);
   createMarkmapView(res.data);
 
-  setTimeout(createToolbar);
-
-  document.getElementById('nav').querySelector('a').addEventListener('click', async (event) => {
-    event.preventDefault();
-    var res = await axios.get(event.target.href);
-    createMarkmapView(res.data);
+  var lnks = document.getElementById('nav').querySelectorAll('a')
+  lnks.forEach(e => {
+    e.addEventListener('click', async (event) => {
+      event.preventDefault();
+      var res = await axios.get(event.target.href);
+      createMarkmapView(res.data);
+    })
   })
 }
 </script>
