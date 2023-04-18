@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Notes</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#mindmap {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+#nav {
+  position: fixed;
+  left: 0;
+  top: 0;
+  margin: 10px;
+  height: 80vh;
+  overflow-y: auto;
+}
+</style>
+<link rel="stylesheet" href="static/markmap-toolbar/dist/style.css">
+<script src="static/d3/dist/d3.min.js"></script>
+<script src="static/markmap-view/dist/index.min.js"></script>
+<script src="static/markmap-toolbar/dist/index.umd.min.js"></script>
+<script src="static/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<ul id="nav"></ul>
+<svg id="mindmap"></svg>
+
+<script type="text/javascript">
+const createToolbar = () => {
+  const { markmap, mm } = window;
+  const toolbar = new markmap.Toolbar();
+  toolbar.attach(mm);
+
+  const el = toolbar.render();
+  el.setAttribute('style', 'position:absolute;bottom:20px;right:20px');
+
+  document.body.append(el);
+}
+
+const createMarkmap = (getMarkmap, getOptions, root, jsonOptions) => {
+  const markmap = getMarkmap();
+  window.mm = markmap.Markmap.create('svg#mindmap', (getOptions || markmap.deriveOptions)(jsonOptions), root);
+}
+
+const createMarkmapView = (root) => {
+  const getMarkmap = () => window.markmap;
+  const getOptions = null;
+  const jsonOptions = null;
+
+  createMarkmap(getMarkmap, getOptions, root, jsonOptions);
+}
+
+window.onload = async () => {
+  const nav = document.getElementById('nav');
+  
+  var res = await axios.get('/markdown');
+
+  res.data.forEach(element => {
+    var li = document.createElement('li')
+    var lnk = document.createElement('a');
+    lnk.href = '/markdown/' + element;
+    lnk.innerHTML = element.replaceAll('.md','')
+
+    li.append(lnk)
+    nav.append(li);
+  })
+
+  res = await axios.get('/markdown/' + res.data[0]);
+  createMarkmapView(res.data);
+
+  setTimeout(createToolbar);
+
+  document.getElementById('nav').querySelector('a').addEventListener('click', async (event) => {
+    event.preventDefault();
+    var res = await axios.get(event.target.href);
+    createMarkmapView(res.data);
+  })
+}
+</script>
+</body>
+</html>
