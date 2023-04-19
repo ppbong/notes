@@ -13,6 +13,7 @@ app.use('/static/d3', express.static(path.join(__dirname, 'node_modules/d3')))
 app.use('/static/markmap-view', express.static(path.join(__dirname, 'node_modules/markmap-view')))
 app.use('/static/markmap-toolbar', express.static(path.join(__dirname, 'node_modules/markmap-toolbar')))
 app.use('/static/axios', express.static(path.join(__dirname, 'node_modules/axios')))
+app.use('/static/prismjs', express.static(path.join(__dirname, 'node_modules/prismjs')))
 
 const { Transformer } = require('markmap-lib')
 const transformer = new Transformer();
