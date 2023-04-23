@@ -329,3 +329,19 @@ res.render('index', {title:'test'}, (err, html) => {})
 ```js
 res.vary('User-Agent').render('docs')
 ```
+
+## Router
+
+### router.all(path, [callback, ...] callback) `所有类型请求`
+
+### router.METHOD(path, [callback, ...] callback) `处理特定类型请求GET|POST|PUT|DELETE等`
+
+### router.param(name, callback) `请求参数检查并处理`
+
+### router.route(path) `子路由`
+
+```js
+router.route('/update').all().get().post().put().delete()
+```
+
+### router.use([path], [function, ...] function) `挂载中间件`
